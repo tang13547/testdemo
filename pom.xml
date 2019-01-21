@@ -1,0 +1,315 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.youe.cd.test</groupId>
+  <artifactId>testdemo</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>testdemo</name>
+  <url>http://maven.apache.org</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <xmlFileName>src/test/java/com/youe/cd/apitest/testng.xml</xmlFileName>
+  </properties>
+
+  <distributionManagement>
+    <repository>
+      <id>releases</id>
+      <name>User Project Release</name>
+      <url>http://172.16.0.249:8081/nexus/content/repositories/releases/</url>
+    </repository>
+    <snapshotRepository>
+      <id>snapshots</id>
+      <name>User Project SNAPSHOTS</name>
+      <url>http://172.16.0.249:8081/nexus/content/repositories/snapshots/</url>
+    </snapshotRepository>
+    <site>
+      <id>website</id>
+      <url>scp://webhost.company.com/www/website</url>
+    </site>
+  </distributionManagement>
+
+  <!-- 添加插件,关联testng.xml -->
+  <profiles>
+    <profile>
+      <id>test</id>
+      <build>
+        <defaultGoal>compile</defaultGoal>
+        <!--重要：不加如下代码会找不到log4j.properties-->
+        <testResources>
+          <testResource>
+            <directory>src/test/resources</directory>
+            <includes>
+              <!--重要：接拼上面的路径-->
+              <include>log4j.properties</include>
+            </includes>
+          </testResource>
+        </testResources>
+
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.0</version>
+            <configuration>
+              <encoding>UTF-8</encoding>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>2.7.1</version>
+            <configuration>
+              <!--<systemPropertyVariables>
+                <testEnvironment>${testEnv}</testEnvironment>
+                <testBrowser>${testBrowser}</testBrowser>
+              </systemPropertyVariables>-->
+
+              <systemProperties>
+                <property>
+                  <name>log4j.configuration</name>
+                  <value>log4j.properties</value> <!--重要：同最上，填写拼接的路径-->
+                </property>
+              </systemProperties>
+
+              <suiteXmlFiles>
+                <suiteXmlFile>${xmlFileName}</suiteXmlFile>
+              </suiteXmlFiles>
+
+              <!-- 使用reportng美化testng报告的相关配置，即关闭默认监听，开启两个reportng的监听 -->
+              <properties>
+                <property>
+                  <name>usedefaultlisteners</name>
+                  <value>false</value>
+                </property>
+                <property>
+                  <name>listener</name>
+                  <value>org.uncommons.reportng.HTMLReporter, org.uncommons.reportng.JUnitXMLReporter</value>
+                </property>
+              </properties>
+              <!--<workingDirectory>target/</workingDirectory>
+              <forkMode>always</forkMode>-->
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>test2</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+        <defaultGoal>compile</defaultGoal>
+
+        <testResources>
+          <testResource>
+            <directory>src/test/resources</directory>
+            <includes>
+              <!--重要：接拼上面的路径-->
+              <include>**/*.feature</include>
+            </includes>
+          </testResource>
+        </testResources>
+
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.0</version>
+            <configuration>
+              <encoding>UTF-8</encoding>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>2.18.1</version> <!--非常重要：使用较新版但不能最新且能支持通过maven运行cucumber的,比如最新2.20.1反而不行-->
+            <configuration>
+              <testFailureIgnore>true</testFailureIgnore>
+              <includes>
+                <include>**/*BddTest.java</include>
+              </includes>
+
+            </configuration>
+          </plugin>
+
+        </plugins>
+      </build>
+    </profile>
+
+  </profiles>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.seleniumhq.selenium</groupId>
+      <artifactId>selenium-server</artifactId>
+      <version>3.5.3</version>
+    </dependency>
+
+    <dependency>
+      <groupId>net.sourceforge.javacsv</groupId>
+      <artifactId>javacsv</artifactId>
+      <version>2.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <version>6.9.9</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-exec</artifactId>
+      <version>1.3</version>
+    </dependency>
+
+    <!-- reportNg的依赖包 关联testNg，对testng原生报告的美化-->
+    <dependency>
+      <groupId>org.uncommons</groupId>
+      <artifactId>reportng</artifactId>
+      <version>1.1.5</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.testng</groupId>
+          <artifactId>testng</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <!-- 使用处理乱码的修改版的reportng时，必须要增加此修改版的velocity包依赖 -->
+    <dependency>
+      <groupId>org.apache.velocity</groupId>
+      <artifactId>velocity</artifactId>
+      <version>1.7dep</version>
+    </dependency>
+
+    <!-- 依赖guice包，为reportng的依赖包？ -->
+    <dependency>
+      <groupId>com.google.inject</groupId>
+      <artifactId>guice</artifactId>
+      <version>3.0</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- easyocr图像识别 -->
+    <dependency>
+      <groupId>cn.easyproject</groupId>
+      <artifactId>easyocr</artifactId>
+      <version>3.0.3-RELEASE</version>
+    </dependency>
+
+    <!-- jexcelapi处理excel文件 -->
+    <dependency>
+      <groupId>net.sourceforge.jexcelapi</groupId>
+      <artifactId>jxl</artifactId>
+      <version>2.6.12</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>okhttp</artifactId>
+      <version>3.9.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.alibaba</groupId>
+      <artifactId>fastjson</artifactId>
+      <version>1.2.40</version>
+    </dependency>
+
+    <!--<dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>2.9.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+      <version>2.9.1</version>
+    </dependency>-->
+
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.17</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.25</version>
+    </dependency>
+
+    <dependency>
+     <groupId>org.slf4j</groupId>
+     <artifactId>slf4j-log4j12</artifactId>
+     <version>1.7.25</version>
+    </dependency>
+
+    <!--poi依赖包处理excel文件-->
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi</artifactId>
+      <version>3.17</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi-ooxml</artifactId>
+      <version>3.17</version>
+    </dependency>
+
+    <!--连接mysql数据库-->
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>6.0.6</version>
+    </dependency>
+
+    <!--运行BDD需要的依赖包：cucumber-java,cucumber-junit和junit-->
+    <dependency>
+      <groupId>info.cukes</groupId>
+      <artifactId>cucumber-java</artifactId>
+      <version>1.2.5</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>info.cukes</groupId>
+      <artifactId>cucumber-junit</artifactId>
+      <version>1.2.5</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>info.cukes</groupId>
+      <artifactId>cucumber-testng</artifactId>
+      <version>1.2.5</version>
+    </dependency>
+
+    <!--<dependency>
+      <groupId>net.masterthought</groupId>
+      <artifactId>cucumber-reporting</artifactId>
+      <version>3.12.0</version>
+    </dependency>-->
+
+  </dependencies>
+
+</project>

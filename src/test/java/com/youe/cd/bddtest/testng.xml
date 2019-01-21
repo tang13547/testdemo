@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="MyTestSuite1" parallel="classes" thread-count="2">
+    <!--<test verbose="2" name="TestTwoCases">
+      <classes>
+        <class name="com.youe.cd.test.webdriverdemotestng.run.RuntestParamCsv"/>
+        <class name="com.youe.cd.test.webdriverdemotestng.run.RuntestLogoutWithDialog" />
+      </classes>
+     </test>
+
+     <test name="TestOtherCases">
+      <classes>
+        <class name="com.youe.cd.test.webdriverdemotestng.run.RuntestParam" />
+      </classes>
+    </test> -->
+
+    <!--<parameter name="testEnv" value="${testEnv}" />-->
+    <!--<parameter name="testBrowser" value="${testBrowser}" />-->  <!-- 全局变量?，下面可以再重写覆盖 -->
+    <!--<parameter name="xmlFileName" value="${xmlFileName}" />-->
+
+    <!-- 关闭默认监听，开启新的监听for reportng -->
+    <listeners>
+        <listener class-name="org.uncommons.reportng.HTMLReporter"/>
+        <listener class-name="org.uncommons.reportng.JUnitXMLReporter"/>
+        <!-- 自动设置执行次数invocationCount或并发数量threadPoolSize -->
+        <!--<listener class-name="com.youe.cd.apitest.util.SetTestAnnotationValue"/>-->
+    </listeners>
+
+    <test name="TestOtherCases">
+        <!--<parameter name="testBrowser" value="${testBrowser}" />--> <!-- 重写覆盖上面的testBrowser值,可以自定义一个具体的值，如firefox等 -->
+        <classes>
+            <class name="com.youe.cd.bddtest.controller.modela.BddTestDemo" />
+        </classes>
+    </test>
+
+
+
+</suite>
